@@ -1,0 +1,9 @@
+setSize(28, 128)
+setRotation(90)
+setBitmapFont(5);
+print(0,125,$1)
+setBitmapFont(2);
+print(15, 125,Batch:)
+print(15,85,$2)
+print(0,30,$3)
+print(15,30,$4)
