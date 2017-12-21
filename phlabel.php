@@ -63,12 +63,15 @@ function makeLabel($lineNumber, $rows){
 
   $lineNumber = (int)$lineNumber;
   $image = false;
+
+  $useBitmapFont = true;
+  $bitmapFont = 0;
   $font = false;
   $fontSize=12;
   $rotation=0;
+
   $backgroundColour = false;
   $colour = false;
-
   foreach ($templateFileContent as $command){
     $command = replaceVars($command, $lineNumber, $rows);
     
@@ -77,20 +80,38 @@ function makeLabel($lineNumber, $rows){
       $height = (int)$matches[2];
       $image = imagecreatetruecolor($width, $height);
       $backgroundColour = imagecolorallocate($image, 255,255,255);
-      $colour = imagecolorallocate($image, 0,0,0);
+      $colour = imagecolorallocate($image, 1,1,1);
       imagefilledrectangle($image, 0,0, $width-1,$height-1, $backgroundColour);
     }
     else if (preg_match("/^\s*setFont\s*\((.*),\s*([0-9.]+)\s*\)/", $command, $matches)){
       $font = $matches[1];
       $fontSize = (float)$matches[2];
+      $useBitmapFont = false;
     }
-    else if (preg_match("/\s*print\s*\(\s*(\d+)\s*,\s*(\d+),(.*)\)/", $command, $matches)){
+    else if (preg_match("/^\s*setBitmapFont\s*\(\s*([0-9.]+)\s*\)/", $command, $matches)){
+      $bitmapFont = $matches[1];
+      $useBitmapFont = true;
+    }
+    else if (preg_match("/^\s*print\s*\(\s*(\d+)\s*,\s*(\d+),(.*)\)/", $command, $matches)){
       $x = (int)$matches[1];
       $y = (int)$matches[2];
       $text = $matches[3];
-      if ($image!==false && $font!==false){
-        imagettftext ($image, $fontSize, $rotation, $x, $y, -$colour, $font, $text);
+      if ($useBitmapFont!==false && $image!==false && $font!==false){
+        imagettftext ($image, $fontSize, $rotation, $x, $y, -((int)$colour), $font, $text);
       }
+      else if ($useBitmapFont && $image!==false){
+        if ($rotation == 90){
+          imagestringup ($image, $bitmapFont, $x, $y, $text, $colour);
+        }
+        else {
+          imagestring ($image, $bitmapFont, $x, $y, $text, $colour);
+        }
+      }
+    }
+    else if (preg_match("/^\s*setRotation\s*\(\s*([0-9.]+)\s*\)/", $command, $matches)){
+      $rotation = (float)$matches[1];
+    }
+    else if (preg_match("/^\s*$/", $command, $matches)){
     }
     else {
       print "Unhandled: $command\n";
