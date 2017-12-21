@@ -1,5 +1,11 @@
 # phlabel
-A small program to generate label images from a template file and "CSV" file
+A small program to generate label images from a template file and "CSV" file.
+
+All output images are written to the current directory.
+
+## Example usage
+
+>cat examples/componentBookValues.csv | php phlabel.php examples/componentBook.template
 
 ## The template file
 
@@ -22,9 +28,20 @@ The commands are documented below:
 Sets the output canvas / label size'in pixels.   
 Should be the first command in the template file.
 
+#### setRotation(angle)
+Sets the angle (counter clockwise) in degrees of the following drawing operations.  
+Notice that not all rendering operations support every rendering rotation.  
+Especially printing with bitmap fonts currently only support rotations of 0 and 90 deg. 
+
+
+#### setBitmapFont(size)
+Sets the text rendering to use one of the bitmap fonts build into GD2.  
+size=1 is the smallest, size=5 is the largest.
+
 #### setFont(path_to_ttf, size)
-Sets the font to use for printing text onto the label.   
-Must be used before any print command.
+Sets the TTF font and size to use for printing text onto the label.   
+This switches to TrueType rendering for text, while TT fonts are scaleable they don't always
+render particular well on low resolution monochrome printers
 
 * path_to_ttf, a relative or absolute path to a TrueType font.
 * size, the font size to use.
@@ -32,6 +49,10 @@ Must be used before any print command.
 #### print(x,y,string)
 Prints a string onto the canvas / label.
 
-* x, is the x coordinate of the base point for the fist letter.
-* y, is the y coordinate of the base point for the fist letter.
+* x and y is the x and y coordinate of the string
 * string, the string to print, please note that any white spaces after the comma is also printed.
+
+The definition of the coordinate of the string varies with the text rendering method
+
+* True Type: The coordinate specifies the base point for the first letter.
+* Bitmap fonts: It is the upper left corner (0 deg rotation) or the bottom left corner (90 deg. rotation)

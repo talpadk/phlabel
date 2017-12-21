@@ -65,7 +65,7 @@ function makeLabel($lineNumber, $rows){
   $image = false;
 
   $useBitmapFont = true;
-  $bitmapFont = 0;
+  $bitmapFont = 1;
   $font = false;
   $fontSize=12;
   $rotation=0;
@@ -89,7 +89,9 @@ function makeLabel($lineNumber, $rows){
       $useBitmapFont = false;
     }
     else if (preg_match("/^\s*setBitmapFont\s*\(\s*([0-9.]+)\s*\)/", $command, $matches)){
-      $bitmapFont = $matches[1];
+      $bitmapFont = (int)$matches[1];
+      if ($bitmapFont<1) { $bitmapFont = 1; }
+      if ($bitmapFont>5) { $bitmapFont = 5; }
       $useBitmapFont = true;
     }
     else if (preg_match("/^\s*print\s*\(\s*(\d+)\s*,\s*(\d+),(.*)\)/", $command, $matches)){
